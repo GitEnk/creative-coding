@@ -27,7 +27,7 @@ const sketch = () => {
       grd.addColorStop(0, colors[i]);
       grd.addColorStop(1, colors[(i+1)%colors.length]);
       context.fillStyle = grd;
-      context.fillStyle = colors[i];
+      // context.fillStyle = colors[i];
       amp = random.range(50, 100);
       freq = random.range(50, 100);
       while(x_line < width){

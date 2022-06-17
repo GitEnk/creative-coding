@@ -8,8 +8,15 @@ const settings = {
 };
 
 const params = {
-  cols: 10,
-  rows: 10
+  cols: 28,
+  rows: 28,
+  scaleMin: 1,
+  scaleMax: 30,
+  freq: 0.003,
+  amp: 0,
+  animate: true,
+  frame: 0,
+  lineCap: "butt"
 }
 
 const sketch = () => {
@@ -36,21 +43,27 @@ const sketch = () => {
       const y = row * cellh;
       const w = cellw * 0.8;
       const h = cellh * 0.8;
-      
-      const n = random.noise2D(x+frame*4, y, 0.002);
-      const angle = n * Math.PI*0.4;
-      const scale = math.mapRange(n, -1, 1, 1, 15);
+      const f = params.animate ? frame : params.frame;
+      const n = random.noise3D(x, y, f*10, params.freq);
+      const angle = n * Math.PI*params.amp;
+      const scale = math.mapRange(n, -1, 1, params.scaleMin, params.scaleMax);
+
+      cv1 = Math.abs(angle*250);
+      cv2 = Math.abs(n*250%250);
+      color = "black";
+      console.log(Math.abs(angle*250%250))
       context.save();
       context.translate(x, y);
       context.translate(margx, margy);
       context.translate(cellw*0.5, cellh*0.5);
       context.rotate(angle);
       context.lineWidth = scale;
+      context.lineCap = params.lineCap;
       context.beginPath();
       context.moveTo(w*-0.5, 0);
       context.lineTo(w*0.5,0);
+      context.strokeStyle = color;
       context.stroke();
-
       context.restore();
     }
   };
@@ -62,6 +75,15 @@ const createPane = () =>{
   folder = pane.addFolder({ title: 'Grid'});
   folder.addInput(params, 'cols', {min: 1, max: 100, step: 1});
   folder.addInput(params, 'rows', {min: 1, max: 100, step: 1});
+  folder.addInput(params, 'scaleMin', {min: 1, max: 100});
+  folder.addInput(params, 'scaleMax', {min: 1, max: 100});
+  
+  folder = pane.addFolder({title: 'Noise'});
+  folder.addInput(params, 'freq', {min: -0.01, max: 0.01});
+  folder.addInput(params, 'amp', {min: 0, max: 1});
+  folder.addInput(params, 'animate');
+  folder.addInput(params, 'frame', {min: 0, max: 999, step: 1})
+  folder.addInput(params, 'lineCap', {options: {butt:"butt", round:"round", square:"square"}})
 }
 createPane();
 canvasSketch(sketch, settings);
